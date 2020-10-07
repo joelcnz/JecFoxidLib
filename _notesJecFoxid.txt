@@ -1,0 +1,6 @@
+_notesJecFoxid.txt
+
+What is stopping you from making an overlay? The sdl of the event._sdl_handle structure can be pulled from the event. From the display too: window._sdl_render (), if that's convenient for you.
+
+event._sdl_handle
+window._sdl_render ()
