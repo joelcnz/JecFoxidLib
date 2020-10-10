@@ -1,5 +1,5 @@
 module jecfoxid.jexting;
-/+
+
 //#like black
 //#not being used
 //#define
@@ -9,22 +9,71 @@ import std.string;
 import std.conv;
 import std.datetime;
 import std.range;
+import std.file;
 
 import jecfoxid;
 
 //version = chunk;
 
+struct JText {
+	Vec position;
+	string text;
+	Font font;
+	int fontSize;
+	Color colour = Color(255,255,255);
+
+	private string fontFileName;
+
+	void setSize(in int fontSize0) {
+		//fontFileName.gh;
+		assert(exists(fontFileName), "File not exist");
+		if (! font)
+			font = new Font();
+		else {
+
+		}
+		try
+			font.load(fontFileName,fontSize0);
+		catch(Exception e)
+			writeln(e.msg);
+		assert(font, "font not load");
+	}
+	float getWidth() { return getWidthText(text, font); }
+
+	this(in string text, Font font) {
+		this.text = text;
+		this.font = font;
+		this.fontSize = font.size;
+		this.fontFileName = font.name;
+		colour = Color(255,180,0);
+	}
+
+	this(in string text, in string fontFileName, in int fontSize) {
+		this.text = text;
+		this.fontSize = fontSize;
+		this.fontFileName = fontFileName;
+		setSize(fontSize);
+		colour = Color(255,180,0);
+	}
+
+	void draw(Display graph) {
+		graph.drawText(text,font,colour,position);
+	}
+}
+
+/+
 class Jexting {
 private:
 	Text[] _txts;
 	int _fontSize;
 	int _textHeight;
-	Point _pos,
+	Color _colour;
+	Vec _pos,
 			 _spd;
 	enum Type {oneLine, history} //#define oneLine: just one line doesn't move. History: adds lines from input, and moves down
 	Type _type;
 	
-	Rect!int _rect;
+	SDL_Rect _rect;
 
 	bool _edge;
 	//Text[] _txtsEdge; //#like black
@@ -37,13 +86,16 @@ public:
 		auto edge() { return _edge; }
 
 		auto txts() { return _txts; }
+
+		void colour(Color col) { _colour = col; }
 	}
 	
-	this(int fontSize, Type type = Type.oneLine) {
+	this(in string fontFileName, int fontSize, Type type = Type.oneLine) {
 		_fontSize = fontSize;
-		_pos = Point(300, 200);
-		_spd = Point(0,0);
+		_pos = Vec(300, 200);
+		_spd = Vec(0,0);
 		_edge = false;
+		_type = type;
 	}
 
 /+
@@ -55,7 +107,8 @@ public:
 	}
 +/
 
-	void chunkCate(dstring str, int chunkSize) {
+/+
+	void chunkCate(string str, int chunkSize) {
 		_txts.length = 0;
 			
 		auto txts = wrap(str, chunkSize, null, null, 4).split('\n');
@@ -68,7 +121,7 @@ public:
 		debug(5)
 			writeln([txts]);
 		foreach(i, txt; txts) {
-			_txts ~= new Text(txt, g_font, _fontSize);
+			_txts ~= Text(txt, g_font, _fontSize);
 			_textHeight = _txts[0].getLocalBounds.height.to!int; // repeats with no effect
 			_txts[$ - 1].position = _txts[$ - 1].position + Point(0, i * _textHeight );
 		}
@@ -100,16 +153,17 @@ public:
 		}
 		buildRect;
 	}
-		
++/		
 	void position(float x, float y) {
 		foreach(i, txt; _txts) {
-			txt.position = Point(x, y + i * _textHeight);
+			txt.position = Vec(x, y + i * txt.fontSize);
 		}
 	}
 	
 	void draw() {
+		/+
 		if (edge) {
-			Text edgeTxt = new Text(""d, g_font, _fontSize);
+			Text edgeTxt = new Text("", , fontSize);
 			edgeTxt.setColor = Color(0, 0, 0);
 			foreach(etxt; _txts) {
 				edgeTxt.setString = etxt.text;
@@ -122,8 +176,9 @@ public:
 					}
 			}
 		}
+		+/
 		foreach(txt; _txts) {
-			g_window.draw(txt);
+			txt.draw;
 		}
 	}
 }

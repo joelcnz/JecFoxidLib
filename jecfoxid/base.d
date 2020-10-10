@@ -7,20 +7,11 @@
 module jecfoxid.base;
 
 public {
-	//Using SDL and standard IO
 	import std.stdio;
 	import std.string; // for toStringz
 
 	import std.math, std.conv, std.path;
-/+
-	import jecfoxid.setup,
-		jecfoxid.draw,
-		jecfoxid.input,
-		jecfoxid.gui,
-		jecfoxid.guifile,
-		jecfoxid.guiconfirm,
-		jecfoxid.sdl_gfx_primitives;
-+/
+
 	import jmisc;
 }
 
@@ -28,13 +19,6 @@ import jecfoxid;
 
 import std.datetime : Duration; //#not used
 import std.datetime.stopwatch: StopWatch;
-
-//public import jec.base, jec.input, jec.jexting, jec.setup, jec.sound, jmisc, jec.gui, jec.guifile, jec.guiconfirm;
-//public import jec, jmisc;
-
-//Screen dimensions
-//int SCREEN_WIDTH;
-//int SCREEN_HEIGHT;
 
 int gNumber = 3_000;
 
@@ -58,9 +42,10 @@ void setClipboardText(string txt) {
 Window gWin;
 Display gGraph;
 Event gFEvent;
+Font gFont;
 
 //Handy font
-int gFontSize = 20;
+int gFontSize = 12;
 
 Uint8* g_keystate;
 
@@ -188,10 +173,10 @@ void keyHold(SDL_Scancode key) {
 enum InputType {oneLine, history}
 
 /// My Jex terminal
-//InputJex g_inputJex;
+InputJex g_inputJex;
 
 /// jx for (see above)
-//alias jx = g_inputJex;
+alias jx = g_inputJex;
 
 /// Show or hide terminal
 bool g_terminal;
@@ -214,10 +199,10 @@ enum WedgetFile {projects, save, load, rename, del, current}
 enum WedgetType {wedget, edit, button}
 
 /// File dialog GUI
-//GuiFile g_guiFile;
+GuiFile g_guiFile;
 
 /// Confirm dialog GUI
-//GuiConfirm g_guiConfirm;
+GuiConfirm g_guiConfirm;
 
 /// Widget file state
 WedgetFile g_wedgetFile;

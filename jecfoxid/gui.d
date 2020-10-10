@@ -2,9 +2,8 @@
 //#dummy I think
 module jecfoxid.gui;
 
-import jecfoxid; //.base, jecfoxid.draw;
+import jecfoxid;
 
-/+
 /// Root wedget
 class Wedget {
 //private:
@@ -23,7 +22,7 @@ class Wedget {
     /// Font
     //TTF_Font* _font;
     /// Text
-    //Jexting _listTxt;
+    JText _listTxt;
     /// My input text
     InputJex _input;
     /// List of text strings
@@ -70,7 +69,7 @@ public:
         _nameid = nameid0;
         _box = box0;
         _rectFillShp = box0;
-        _rectFillShp.mColour = SDL_Color(180, 64, 0);
+        _rectFillShp.col = Color(180, 64, 0);
         _rectOutLineShp = box0;
         //_rectOutLineShp.mColour = SDL_Color(255,255,255, 0xFF);
         //_font = TTF_OpenFont(buildPath("Fonts", "DejaVuSans.ttf").toStringz, 15);
@@ -78,6 +77,7 @@ public:
        
        // _listTxt = Jexting( "", SDL_Rect(0,0,0,0), SDL_Color(255,255,0,0xFF), 15,
        //     buildPath("Fonts", "DejaVuSans.ttf"));
+       _listTxt = JText("",gFont);
 
         _list ~= nameid; //#dummy I think
         //_font = TTF_OpenFont("DejaVuSans.ttf".toStringz, 15);
@@ -93,8 +93,8 @@ public:
     bool gotFocus(Vec pos) {
         import std.string : split;
         //mixin(trace("_box.x _box.y _box.w _box.h".split));
-        if (! hidden && pos.x >= _box.x && pos.x < _box.x + _box.w &&
-            pos.y >= _box.y && pos.y < _box.y + _box.h)
+        if (! hidden && pos.x >= _box.pos.x && pos.x < _box.pos.x + _box.size.x &&
+            pos.y >= _box.pos.y && pos.y < _box.pos.y + _box.size.y)
             return true;
         return false;
     }
@@ -103,29 +103,29 @@ public:
     void process() {}
 
     /// Minimal drawing
-    void draw() {
-        //gGraph.drawRect()
+    void draw(Display graph) {
+        graph.drawRect(_rectFillShp.pos,_rectFillShp.pos + _rectFillShp.size,_rectFillShp.col,true); // Drawning rectangle
         /+
         SDL_SetRenderDrawColor(gRenderer,
             _rectFillShp.mColour.r,
             _rectFillShp.mColour.g,
             _rectFillShp.mColour.b, 0xFF);
         SDL_RenderFillRect(gRenderer, &_rectFillShp.mRect);
-
++/
         if (_wedgetType != WedgetType.edit && _list.length) {
-            auto pos = Point(box.x + 1, box.y + 1);
+            auto pos = Vec(box.pos.x + 1, box.pos.y + 1);
             foreach(item; _list) {
-                _listTxt.setString(item);
-                _listTxt.pos = Point(pos.X, pos.Y);
-                _listTxt.draw(gRenderer);
-                pos = Point(pos.X, pos.Y + _listTxt.mRect.h);
+                _listTxt.text = item;
+                _listTxt.position = pos;
+                _listTxt.draw(graph);
+                pos.y += _listTxt.font.size; //Vec(pos.X, pos.Y + _listTxt.mRect.h);
             }
         }
         if (focusAble && _focus == Focus.on) {
-            SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-            SDL_RenderDrawRect(gRenderer, &_rectOutLineShp.mRect);
+  //          SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+//            SDL_RenderDrawRect(gRenderer, &_rectOutLineShp.mRect);
+            graph.drawRect(_rectOutLineShp.pos,_rectOutLineShp.pos + _rectOutLineShp.size,Clr.white,false);
         }
-        +/
     }
 }
 
@@ -135,11 +135,11 @@ class EditBox : Wedget {
     this(in string name, in JRectangle box0, string txt0) {
         super(name, box0);
         _wedgetType = WedgetType.edit;
-       _input = new InputJex(/* position */ Point(_box.x + 2, box.y + 2),
+       _input = new InputJex(/* position */ Vec(_box.pos.x + 2, box.pos.y + 2),
                     /* font size */ 12,
                     /* header */ txt0,
                     /* Type (oneLine, or history) */ InputType.oneLine);
-        _input.setColour(SDL_Color(0xFF, 0xFF, 0xFF, 0xFF));
+        _input.setColour(Color(0xFF, 0xFF, 0xFF, 0xFF));
     }
 
     override void process() {
@@ -152,9 +152,9 @@ class EditBox : Wedget {
         }
     }
 
-    override void draw() {
-        super.draw;
-        _input.draw;
+    override void draw(Display graph) {
+        super.draw(graph);
+        _input.draw(graph);
     }
 }
 
@@ -169,8 +169,7 @@ class Button : Wedget {
     override void process() {
     }
 
-    override void draw() {
-        super.draw;
+    override void draw(Display graph) {
+        super.draw(graph);
     }
 }
-+/

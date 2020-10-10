@@ -3,7 +3,6 @@ module jecfoxid.guiconfirm;
 
 import jecfoxid;
 
-/+
 /// Confirm (yes/no) dialog box
 struct GuiConfirm {
     Wedget[] _wedgets; /// List of wedgets
@@ -29,7 +28,7 @@ struct GuiConfirm {
     }
 
     /// Process checking for button press
-    void process(in Point pos) {
+    void process(in Vec pos) {
         /+
         if (! getWedgets[0].hidden) {
             if (g_keys[SDL_SCANCODE_Y].keyTrigger) {
@@ -48,16 +47,14 @@ struct GuiConfirm {
             process;
             if (gotFocus(pos)) {
                 _focus = Focus.on;
-                /+
-                if (gEvent.type == SDL_MOUSEBUTTONDOWN) {
-                //if (g_keys[SDL_SCANCODE_V].keyInput) {
+                //if (gFEvent._sdl_handle.type == SDL_MOUSEBUTTONDOWN) {
+                if (g_keys[SDL_SCANCODE_V].keyInput) {
                     setHideAll(true);
                     if (wedget.nameid == "yes")
                         g_stateConfirm = StateConfirm.yes;
                     else if (wedget.nameid == "no")
                         g_stateConfirm = StateConfirm.no;
                 }
-                +/
             } else {
                 _focus = Focus.off;
             }
@@ -65,11 +62,10 @@ struct GuiConfirm {
     }
 
     /// Draw
-    void draw() {
+    void draw(Display graph) {
         foreach(w; _wedgets) {
             if (! w.hidden)
-                w.draw;
+                w.draw(graph);
         }
     }
 }
-+/

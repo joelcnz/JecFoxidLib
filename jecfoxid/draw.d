@@ -1,8 +1,7 @@
 module jecfoxid.draw;
 //#Colour changing not working
 
-//import bindbc.sdl;
-import jecfoxid; //.base;
+import jecfoxid;
 
 struct JRectangle {
     Vec pos, size;

@@ -2,7 +2,6 @@ module jecfoxid.guifile;
 
 import jecfoxid;
 
-/+
 /**
  * Handles file operations
  * load, save, delete, and rename
@@ -21,7 +20,7 @@ struct GuiFile {
     }
 
     /// Process's
-    void process(in Point pos) {
+    void process(in Vec pos) {
         for1: foreach(ref wedget; _wedgets) with(wedget) {
             process;
             if (gotFocus(pos)) {
@@ -47,7 +46,7 @@ struct GuiFile {
                         //update(i, ", is out of bounds 1-", txts.length - 1);
                         break for1;
                     }
-                    input.textStr = txts[i][txts[i].indexOf(" ") + 1 .. $].to!dstring;
+                    input.textStr = txts[i][txts[i].indexOf(" ") + 1 .. $];
                 }
                 import std.path : stripExtension, baseName;
                 if (nameid == "save" || nameid == "load" || nameid == "rename" || nameid == "delete") {
@@ -84,9 +83,8 @@ struct GuiFile {
     }
 
     /// Draw each file wedget
-    void draw() {
+    void draw(Display graph) {
         import std.algorithm : each;
-        _wedgets.each!(w => w.draw);
+        _wedgets.each!(w => w.draw(graph));
     }
 }
-+/

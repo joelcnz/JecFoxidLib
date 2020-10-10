@@ -17,35 +17,37 @@ import std.stdio;
 import std.conv;
 import std.ascii;
 
-import jecfoxid; //.base, jecfoxid.jexting;
-/+
+import jecfoxid;
+
 class InputJex {
 private:
-	dstring _str;
+	Font _font;
+	string _str;
 	bool _keyShift, _control, _alt, _keySystem;
-	//Jexting[] _history;
+	JText[] _history;
 	int _inputHistoryPos;
-	dstring[] _inputHistory;
+	string[] _inputHistory;
 	string _button;
-	//Jexting _txt,
-	//	 _header;
+	JText _txt,
+		 _header;
 	int _fontSize;
-	SDL_Color _colour;
+	Color _colour;
 	float _historyLineHeight;
-	Point _vect,
+	Vec _vect,
 			 _mousePos;
 	//CircleShape _ss; //#not used
 	bool _enterPressed;
 	
 	int _x;
 	//Jexting _measure; //cursor position
+	JText _measure;
 
 	InputType _inputType; //#define oneLine: just one line doesn't move. History: adds lines from input, and moves down
 
 	//RectangleShape _cursor; // for drawing the cursor
 	//SDL_Surface* 
-	SDL_Rect _cursor;
-	SDL_Color _cursorCol;
+	Vec _cursor;
+	Color _cursorCol;
 
 	bool _edge = false;
 
@@ -55,7 +57,7 @@ private:
 
 	bool _showHistory = true;
 
-	dchar _lastKeyPressed;
+	char _lastKeyPressed;
 
 	//#here
 	//JSound[char] _aphaNum;
@@ -77,7 +79,7 @@ public:
 		void drawCursor(bool drawCursor0) { _drawCursor = drawCursor0; }
 
 		auto lastKeyPressed() { return _lastKeyPressed; }
-		void lastKeyPressed(dchar lastKeyPressed0) { _lastKeyPressed = lastKeyPressed0; }
+		void lastKeyPressed(char lastKeyPressed0) { _lastKeyPressed = lastKeyPressed0; }
 
 		auto showHistory() { return _showHistory; }
 		void showHistory(bool showHistory0) { _showHistory = showHistory0; }
@@ -98,28 +100,28 @@ public:
 		void enterPressed(bool ep) { _enterPressed = ep; }
 	
 		auto textStr() { return _str; }
-		//void textStr(dstring str) { _str = str; _txt.setString = _str.to!string; }
+		void textStr(string str) { _str = str; _txt.text = _str.to!string; }
 		
-		//void clearHistory() { _history.length = 0; }
+		void clearHistory() { _history.length = 0; }
 
 		auto backSpaceHit() { return _backSpaceHit; }
 		void backSpaceHit(in bool backSpaceHit0) { _backSpaceHit = backSpaceHit0; }
 
 		void moveHistoryUp() {
-			//foreach(ref line; _history)
-			//	line.pos = Point(_header.mRect.x, line.mRect.y - _historyLineHeight);
+			foreach(ref line; _history)
+				line.position = Vec(_header.position.x, line.position.y - _historyLineHeight);
 		}
 		
 		auto historyColour() { return _colour; }
 
-		void historyColour(SDL_Color colour) {
+		void historyColour(Color colour) {
 			_colour = colour;
 		}
 
-		void setColour(SDL_Color colour) {
+		void setColour(Color colour) {
 			historyColour = colour;
-			_txt.colour(_colour);
-			_header.colour(_colour);
+			_txt.colour = _colour;
+			_header.colour = _colour;
 			//_cursor.fillColor = _colour;
 			_cursorCol = _colour;
 		}
@@ -131,7 +133,7 @@ public:
 	}
 
 	void placeTextLine(in uint index, in int x, int y, in string str) {
-		assert(index < _history.length, "Error: index out of bounds");
+		//assert(index < _history.length, "Error: index out of bounds");
 
 		//_history[index] = new Text(str.to!dstring, g_font, _txt.getCharacterSize);
 		//assert(JextingMakeFont("DejaVuSans.ttf", fontSize), "make font fail");
@@ -149,26 +151,28 @@ public:
 		
 	}
 
-	this(Point pos, int fontSize0, string header = "H for help: ", InputType inputType = InputType.oneLine) {
+	this(Vec pos, int fontSize0, string header = "H for help: ", InputType inputType = InputType.oneLine) {
 		fontSize = fontSize0;
 		//gh("start of 'this' " ~ __FUNCTION__);
-		_colour = SDL_Color(255, 255, 255, 255);
+		_colour = Color(255, 180, 0);
 		//assert(JextingMakeFont("DejaVuSans.ttf", fontSize), "make font fail");
 		//if (_font is null)
 		//	_font = TTF_OpenFont(header.toStringz, fontSize);
 		//_header = Jexting(header, SDL_Rect(pos.Xi,pos.Yi), _colour, fontSize, buildPath("fonts", "DejaVuSans.ttf"));
-		//_header = new Text(header.to!dstring, g_font, fontSize);
-		//_header.position = pos;
+		_header = JText(header, gFont);
+		_header.position = pos;
+		_header.colour = _colour;
 		_inputType = inputType;
 		
 		//_txt = new Text(""d, g_font, fontSize);
 		//_str = "<edit here>"d;
-		_str = "";
-		//_txt = Jexting(_str.to!string, SDL_Rect(pos.Xi + _header.mRect.w, pos.Yi), _colour, fontSize, buildPath("fonts", "DejaVuSans.ttf"));
-		//_txt.pos = Point(pos.X + _header.mRect.w.to!float, pos.Y);
+		//_str = "";
+		_txt = JText("", buildPath("fonts", "DejaVuSans.ttf"), fontSize);
+		_txt.colour = _colour;
+		_txt.position = Vec(pos.x + _header.getWidth().to!float, pos.y);
 
 		showHistory = true;
-		_historyLineHeight = _header.mRect.h.to!float;
+		_historyLineHeight = _header.fontSize.to!float;
 		_inputHistory ~= "";
 
 		//_cursor = new RectangleShape;
@@ -181,21 +185,24 @@ public:
 		//_x = _txt.position.x;
 		//_measure = new Text(""d, g_font, fontSize);
 		//_measure = Jexting(_str.to!string, SDL_Rect(pos.Xi, pos.Yi), _colour, fontSize, buildPath("fonts", "DejaVuSans.ttf"));
-		_measure.pos = pos;
-		//updateMeasure;
+		_measure = JText("",gFont);
+		_measure.position = pos;
+		updateMeasure;
 		//debug mixin(trace("pos"));
 	}
 
 	void updateMeasure() {
 		if (_x <= _str.length) {
-			_measure.setString = _str[0 .. _x].to!string;
+			_measure.text = _str[0 .. _x];  //.to!string;
 		} else {
 			_x = cast(int)_str.length;
 		}
+		_txt.text = _str;
+		//mixin(tce("_x _measure.text _str".split));
 	}
 
 	void insert(C)(C c)
-		if (is(C == dstring))
+		if (is(C == string))
 	{
 		debug(5) mixin(trace("c", "_x", "_str"));
 		if (_x > _str.length)
@@ -209,7 +216,7 @@ public:
 		}
 	}
 
-	dstring getKeyDString() {
+	string getKeyDString() {
 		_keyShift = _control = _alt = _keySystem = false;
 
 		SDL_PumpEvents();
@@ -244,26 +251,26 @@ public:
 		foreach(key; SDL_SCANCODE_A .. SDL_SCANCODE_Z + 1) {
 			if (g_keys[cast(ubyte)key].keyInput) {
 				if (_keyShift == true)
-					return uppercase[i].to!dstring;
+					return uppercase[i].to!string;
 				else
-					return lowercase[i].to!dstring;
+					return lowercase[i].to!string;
 			}
 			i += 1;
 		} // foreach
 
 		if (g_keys[SDL_SCANCODE_Z + 10].keyInput) {
 			if (_keyShift)
-				return ")"d;
+				return ")";
 			else
-				return "0"d;
+				return "0";
 		}
 		i = 0;
 		foreach(key; SDL_SCANCODE_Z + 1 .. SDL_SCANCODE_Z + 9 + 1) {
 			if (g_keys[key].keyInput) {
 				if (_keyShift)
-					return "!@#$%^&*("d[i].to!dstring;
+					return "!@#$%^&*("[i].to!string;
 				else
-					return (i + 1).to!dstring;
+					return (i + 1).to!string;
 			}
 			i++;
 		} // foreach
@@ -273,9 +280,9 @@ public:
 			if (! _control && ! _alt) {
 				if (g_keys[SDL_SCANCODE_SPACE + 1 + i].keyInput) {
 					if (_keyShift)
-						return "_+{}|"d[i].to!dstring;
+						return "_+{}|"[i].to!string;
 					else
-						return "-=[]\\"d[i].to!dstring;
+						return "-=[]\\"[i].to!string;
 				}
 			}
 			i++;
@@ -283,9 +290,9 @@ public:
 
 		if (g_keys[SDL_SCANCODE_SPACE + 7].keyInput) {
 			if (_keyShift)
-				return ":"d[0].to!dstring;
+				return ":"[0].to!string;
 			else
-				return ";"d[0].to!dstring;
+				return ";"[0].to!string;
 		}
 
 		i = 0;
@@ -293,9 +300,9 @@ public:
 			if (! _control && ! _alt) {
 				if (g_keys[SDL_SCANCODE_SPACE + 9 + i].keyInput) {
 					if (_keyShift)
-						return "~<>?"d[i].to!dstring;
+						return "~<>?"[i].to!string;
 					else
-						return "`,./"d[i].to!dstring;
+						return "`,./"[i].to!string;
 				}
 			}
 			i++;
@@ -303,21 +310,21 @@ public:
 
 		if (g_keys[SDL_SCANCODE_APOSTROPHE].keyInput) {
 			if (_keyShift)
-				return `"`d[0].to!dstring;
+				return `"`[0].to!string;
 			else
-				return "'"d[0].to!dstring;
+				return "'"[0].to!string;
 		}
 
 		if (g_keys[SDL_SCANCODE_SPACE].keyInput)
-			return " "d;
-		return ""d;
+			return " ";
+		return "";
 	} // get key dstring
 
 	void clearInput() {
-		_str = ""d;
+		_str = "";
 		_x = 0;
 		updateMeasure;
-		//_txt.setString = _str.to!string;
+		_txt.text = "";
 	}
 
 	void process() {
@@ -325,7 +332,7 @@ public:
 
 		if (dkey.length)
 			_lastKeyPressed = dkey[0];
-		if (dkey != ""d)
+		if (dkey != "")
 			insert(dkey),
 		//	_txt.setString = _str.to!string,
 			updateMeasure;
@@ -386,7 +393,7 @@ public:
 			else
 				_x -= 1;
 			debug(5) mixin(trace("/* left */ _str[0 .. _x]"));
-			_measure.setString = _str[0 .. _x].to!string;
+			_measure.text = _str[0 .. _x].to!string;
 		}
 
 		if (g_keys[SDL_SCANCODE_RIGHT].keyInput && _x + 1 <= _str.length) {
@@ -395,14 +402,15 @@ public:
 			else
 				_x += 1;
 			debug(5) mixin(trace("/* right */ _str[0 .. _x]"));
-			_measure.setString = _str[0 .. _x].to!string;
+			_measure.text = _str[0 .. _x].to!string;
 		}
 		
 		//#new
 		//if (Mouse.isButtonPressed(Mouse.Button.Left)
 		//	||
 		//if (textStr == "l,") {
-		if (gEvent.type == SDL_MOUSEBUTTONDOWN) {
+			/+
+		if (gEvent._sdl_handle().type == SDL_MOUSEBUTTONDOWN) {
 			debug(5)
 				writeln("Left mouse button pressed!");
 			/+
@@ -421,10 +429,9 @@ public:
 			}
 			+/
 		}
+		+/
 
-		_cursor = SDL_Rect(_txt.mRect.x + _measure.mRect.w, _measure.mRect.y, _cursor.w, _cursor.h); //#shouldn't be here
-		//_cursor.size = Point(2, _header.getGlobalBounds.height);
-		//_cursor.size = Point(2, _header.getCharacterSize);
+		_cursor = Vec(_txt.position.x + _measure.getWidth, _measure.position.y);
 	} // process
 	
 	auto addToHistory(T...)(T args) {
@@ -448,6 +455,9 @@ public:
 			//_history ~= Jexting(str.to!string, SDL_Rect(), _colour, fontSize, "DejaVuSans.ttf"); //_txt.getCharacterSize);
 			//_history[$ - 1].pos = Point(_header.mRect.x, _txt.mRect.y - _historyLineHeight);
 			//_history[$ - 1].setColor = _colour;
+
+			_history ~= JText(str,gFont);
+			_history[$-1].position.y = _txt.position.y - _txt.fontSize;
 			
 			_inputHistoryPos = cast(int)_inputHistory.length - 1;
 		} // onlyMirror
@@ -455,7 +465,7 @@ public:
 		return str;
 	}
 	
-	void draw() {
+	void draw(Display graph) {
 		if (inputType == InputType.history &&
 			//g_mode == Mode.edit && 
 			showHistory) {
@@ -485,13 +495,11 @@ public:
 			}
 			import std.algorithm: filter, each;
 
-			SDL_SetRenderDrawColor(gRenderer,
-					historyColour.r,historyColour.g,historyColour.b,historyColour.a);
-			/+
+			//SDL_SetRenderDrawColor(gRenderer,
+			//		historyColour.r,historyColour.g,historyColour.b,historyColour.a);
 			_history
-			.filter!(a => a.mRect.y >= 0)
-			.each!drawLine;
-			+/
+			.filter!(a => a.position.y + a.fontSize >= 0)
+			.each!((line) { line.draw(graph); } );
 		}
 		if (g_terminal) {
 			if (_edge) {
@@ -499,31 +507,26 @@ public:
 
 			//g_window.draw(_header);
 			//g_window.draw(_txt);
-			SDL_RenderCopy(gRenderer, _header.mTex, null, &_header.mRect);
-			if (_txt.mRect.w > 0)
-				SDL_RenderCopy(gRenderer, _txt.mTex, null, &_txt.mRect);
+			//SDL_RenderCopy(gWin._sdl_render(), _header.mTex, null, &_header.mRect);
+			//if (_txt.mRect.w > 0)
+			//	SDL_RenderCopy(gWin._sdl_render(), _txt.mTex, null, &_txt.mRect);
 			//mixin(trace("_txt.mRect.x _txt.mRect.y _txt.mRect.w _txt.mRect.h".split));
+			_header.draw(graph);
+			_txt.draw(graph);
+			//_measure.draw(graph);
 			
 			if (drawCursor) {
+				graph.drawRect(_cursor,_cursor + Vec(2,_measure.fontSize),Color(255,255,255),true);
+				/+
 			//	g_window.draw(_cursor);
-				SDL_SetRenderDrawColor(gRenderer,
+				SDL_SetRenderDrawColor(gWin.sdlRender(),
 					_cursorCol.r,_cursorCol.g,_cursorCol.b,_cursorCol.a);
 				foreach(y; _cursor.y .. _cursor.y + _cursor.h)
 					foreach(x; _cursor.x .. _cursor.x + _cursor.w)
-						SDL_RenderDrawPoint(gRenderer, x,y);
+						SDL_RenderDrawPoint(gWin.sdlRender(),x,y);
 //				SDL_RenderCopy(gRenderer, _cursor.mTex, null, &_cursor.mRect);
++/
 			}
 		}
 	}
 }
-
-/**
- * Draw line of history
- */
-auto drawLine(R)(R r, ref Jexting line) {
-	SDL_RenderCopy(gRenderer, line.mTex, null, &line.mRect);
-	//g_window.draw(line.mTex);
-
-	return r;
-}
-+/

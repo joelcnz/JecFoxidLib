@@ -2,18 +2,28 @@ module jecfoxid.setup;
 
 import jecfoxid;
 
-bool jf_setup() @safe {
+bool jf_setup(in string title = "Jec Foxid", int windowWidth = 640, int windowHeight = 480, Color clearColour = Color(0,0,0)) @trusted {
 	sdlInit(); // Initialize sdl 2.
-	gWin = new Window();
-	gWin.init("Jec Foxid Test",640,480);
-	gWin.background = Clr.white;
+	_foxloader = new Loader();
+	_foxscene = new SceneManager();
+	//_listener = new Listener();
+	_window = new Window();
+	_window.create(windowWidth,windowHeight,title);
+	_window.background = clearColour; //Clr.black;
+	gWin = _window;
 	gGraph = new Display(gWin); // We create and tell the display that we are drawing into this window.
-	assert(initKeys, "keys failure");
+	assert(jf_initKeys, "keys failure");
+	gFont = new Font();
+	immutable fontFileName = "fonts/DejaVuSans.ttf";
+	gFont.load(fontFileName,gFontSize);
+	guiSetup;
 
 	return true;
 }
 
-bool initKeys() @trusted {
+//bool initKeys() @trusted {
+	//}
+bool jf_initKeys() @trusted {
 	g_keystate = SDL_GetKeyboardState(null);
 	foreach(tkey; cast(SDL_Scancode)0 .. SDL_NUM_SCANCODES)
 		g_keys ~= new TKey(cast(SDL_Scancode)tkey);
@@ -21,9 +31,8 @@ bool initKeys() @trusted {
 	return g_keys.length == SDL_NUM_SCANCODES;
 }
 
-/+
 void guiSetup() {
-	SDL_Color col = {0xFF, 0xFF, 0, 0xFF};
+	auto col = SDL_Color(0xFF, 0xFF, 0, 0xFF);
 
 	auto test = new Wedget("projects", JRectangle(SDL_Rect(20,20,300,400), BoxStyle.solid, col));
 
@@ -51,6 +60,7 @@ void guiSetup() {
 //Frees media and shuts down SDL
 void close()
 {
+	//if (gFont) TTF_CloseFont(gFont);
 	/+
 	//Destroy window
 	SDL_DestroyWindow( gWindow );
@@ -69,4 +79,3 @@ void close()
 	SDL_AudioQuit();
 	+/
 }
-+/
