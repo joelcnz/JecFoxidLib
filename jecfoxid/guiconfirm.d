@@ -47,8 +47,9 @@ struct GuiConfirm {
             process;
             if (gotFocus(pos)) {
                 _focus = Focus.on;
-                //if (gFEvent._sdl_handle.type == SDL_MOUSEBUTTONDOWN) {
-                if (g_keys[SDL_SCANCODE_V].keyInput) {
+                //if (gFEvent.sdlHandle.type == SDL_MOUSEBUTTONDOWN) {
+                if (gFEvent.sdlHandle.type == SDL_MOUSEBUTTONDOWN) {
+                //if (g_keys[SDL_SCANCODE_V].keyInput) {
                     setHideAll(true);
                     if (wedget.nameid == "yes")
                         g_stateConfirm = StateConfirm.yes;

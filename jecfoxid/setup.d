@@ -10,6 +10,12 @@ bool jf_setup(in string title = "Jec Foxid", int windowWidth = 640, int windowHe
 	_window = new Window();
 	_window.create(windowWidth,windowHeight,title);
 	_window.background = clearColour; //Clr.black;
+
+	assert(window !is null);
+	assert(window.sdlWindow !is null);
+	assert(window.sdlRender !is null);
+	assert(_foxloader !is null);
+
 	gWin = _window;
 	gGraph = new Display(gWin); // We create and tell the display that we are drawing into this window.
 	assert(jf_initKeys, "keys failure");

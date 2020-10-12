@@ -2,13 +2,12 @@
 //#draw letter
 /// Letter
 module jecfoxid.letter;
-/+
+
 import std.stdio, std.string;
 import jecfoxid;
 
 version = new0;
 
-version(new0) {
 /**
  * The letters that make up the text
  * 
@@ -20,7 +19,7 @@ private:
 	static JRectangle m_selectedGfx;
 	int m_id;
 
-	double m_xpos, m_ypos,
+	float m_xpos, m_ypos,
 		m_xdir, m_ydir, m_width, m_height, m_roof, m_floor, m_xoff, m_yoff,
 		abcol;
 	char m_letter; //#maybe change to just 'char'
@@ -73,7 +72,7 @@ public:
 	auto selected() { return m_selected; }
 	
 	//void setPostion( double x, double y ) { xpos = x; ypos = y; } /// postion the letter
-	void setPostion( double x, double y ) {
+	void setPostion( float x, float y ) {
 		//letterManager(cast(int)x,cast(int)y);
 		xpos = x;
 		ypos = y;
@@ -168,7 +167,9 @@ public:
 		  && ypos <= letterManager.square.h + letterManager.height) {
 			if ( ! alternate ) {
 				m_letterManager.chooseTextGfx(gfxIndex);
-				m_selectedGfx.mRect = SDL_Rect(cast(int)xpos, cast(int)ypos, letterManager.width,letterManager.height);
+				//SDL_Rect(cast(int)xpos, cast(int)ypos, letterManager.width,letterManager.height);
+				m_selectedGfx.pos = Vec(xpos,ypos);
+				m_selectedGfx.size = Vec(letterManager.width,letterManager.height);
 				//stamp.draw(m_letterManager.bmpLetters[letter]);
 
 				// Set the render target texture as the current render target
@@ -185,13 +186,16 @@ public:
 				//mixin(trace("/*m_selectedGfx*/m_selectedGfx.x m_selectedGfx.y m_selectedGfx.w m_selectedGfx.h".split));
 				// Clear the render target texture to black
 				if (m_selected) {
-					m_selectedGfx.setup(rpos, BoxStyle.solid, SDL_Color(0,0,255, 128));
-					m_selectedGfx.draw;
+					//setup(rpos, BoxStyle.solid, SDL_Color(0,0,255, 128));
+					m_selectedGfx = JRectangle(rpos,BoxStyle.solid,SDL_Color(0,0,255, 128));
+					//m_selectedGfx.draw; //(gGraph);
+					SDL_RenderFillRect(gWin.sdlRender, &rpos);
+
 					SDL_SetTextureBlendMode( letterManager.getTextureLetter(letter), SDL_BLENDMODE_BLEND );
 					SDL_SetTextureAlphaMod( letterManager.getTextureLetter(letter), 128 );
 				}
 
-				SDL_RenderCopy(gRenderer, letterManager.getTextureLetter(letter), null, &rpos);
+				SDL_RenderCopy(gWin.sdlRender, letterManager.getTextureLetter(letter), null, &rpos);
 				SDL_SetTextureBlendMode( letterManager.getTextureLetter(letter), SDL_BLENDMODE_NONE );
 				//SDL_RenderCopy(gRenderer, letterManager.bmpLetters[letter], null, &rpos);
 				//SDL_RenderCopy(gRenderer, letterManager.getTextureLetter(letter), null, &m_selectedGfx.mRect);
@@ -203,5 +207,3 @@ public:
 		} // if letter
 	}
 }
-} // version new0
-+/

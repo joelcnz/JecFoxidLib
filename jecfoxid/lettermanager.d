@@ -34,20 +34,17 @@ import jecfoxid;
 
 version = AutoScroll;
 
-//version = new0;
-
-version(new0) {
 /// Letter Manager
 class LetterManager { //#shoudn't it be struct
 private:
 	SDL_Texture*[char] m_bmpLetters;
 	SDL_Texture*[char][] m_bmpLettersMulti;
+	/// Draw to screen
 //	RenderTexture _stampArea;
 	SDL_Texture* _stampArea;
-	/// Draw to screen
-	//Sprite _letSpriteBlock;
-
-	//SDL_Texture*[] m_charSets;
+	//Image[char] m_bmpLetters;
+	//Image[char][] m_bmpLettersMulti;
+	//Image _stampArea;
 
 	int m_width, /// letter width
 		m_height; /// letter height
@@ -67,7 +64,7 @@ public:
 	/// Text type
 	enum TextType {block, line}
 	TextType m_textType; /// Method text type
-	SDL_Texture* getTextureLetter(char l) {
+	auto getTextureLetter(char l) {
 		assert(l in m_bmpLetters, "Character not found.");
 		return m_bmpLetters[l];
 	}
@@ -169,11 +166,13 @@ public:
 		//_stampArea = SDL_CreateRGBSurface(0, asquare.width, asquare.height, 32, 0,0,0,0xFF);
 		//_stampArea.create(asquare.width, asquare.height);
 		//_letSpriteBlock = new Sprite;
-		_stampArea = SDL_CreateTexture(gRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
+		_stampArea = SDL_CreateTexture(gWin.sdlRender, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
 			asquare.w, asquare.h);
-		SDL_SetRenderTarget(gRenderer, null); //#seems to be redundant - maybe good practice
+		//SDL_SetRenderTarget(gRenderer, null); //#seems to be redundant - maybe good practice
+		//_stampArea.create(asquare.width, asquare.height);
+
 		import std.string : split;
-		mixin(trace("asquare.w asquare.h".split));
+		mixin(tce("asquare.w asquare.h".split));
 		/+
 		_cursorGfx = new RectangleShape;
 		with(_cursorGfx) {
@@ -216,6 +215,7 @@ public:
 		SDL_Texture*[char] tletters;
 		import std.string : toStringz;
 		SDL_Surface* source = IMG_Load(spritesFileName.toStringz);
+		//source.load
 		if (source is null) {
 			import std.string : fromStringz;
 			writeln("Error loading bitmap file: ", IMG_GetError().fromStringz);
@@ -227,7 +227,7 @@ public:
 					SDL_FreeSurface(surf);
 				SDL_Rect rsrc = {1 + (i - 33) * step, 1, width, height - 1};
 				SDL_BlitSurface(source, &rsrc, surf, null);
-				tletters[i] = SDL_CreateTextureFromSurface(gRenderer, surf);
+				tletters[i] = SDL_CreateTextureFromSurface(gWin.sdlRender, surf);
 			}
 		}
 		return tletters;
@@ -737,12 +737,12 @@ public:
 			//_stampArea.clear(Colour.black);
 			if (count > 0) {
 				//mixin(trace("count"));
-				SDL_SetRenderTarget(gRenderer, stampArea);
+				SDL_SetRenderTarget(gWin.sdlRender, stampArea);
 				assert(stampArea, "Stamp!");
 
 				//SDL_SetRenderDrawColor(gRenderer, 128,128,0, 0);
-				SDL_SetRenderDrawColor(gRenderer, 0,0,0, 0xFF);
-				SDL_RenderClear(gRenderer);
+				SDL_SetRenderDrawColor(gWin.sdlRender, 0,0,0, 0xFF);
+				SDL_RenderClear(gWin.sdlRender);
 
 				foreach(ref l; letters)
 					l.draw;
@@ -761,23 +761,25 @@ public:
 				ypos += height;
 			}
 
-			_cursorGfx.position = Point(cast(float)xpos + width, cast(float)ypos);
-			_cursorGfx.draw;
+			_cursorGfx.pos = Vec(cast(float)xpos + width, cast(float)ypos);
+			SDL_Rect rpos = {cast(int)(xpos+width),cast(int)(ypos+height),
+				cast(int)width,cast(int)height};
+			SDL_RenderFillRect(gWin.sdlRender, &rpos);
+			//_cursorGfx.draw;
 
 			//_stampArea.draw(_cursorGfx);
 			//_stampArea.display;
 			//const letTexture = _stampArea.getTexture;
 			//_letSpriteBlock.setTexture(letTexture);
-			SDL_SetRenderTarget(gRenderer, null);
+			SDL_SetRenderTarget(gWin.sdlRender, null);
 		} // if update
 		//g_window.draw(_letSpriteBlock);
 		// Render the actual render target texture to the default render target
 		import std.string : split;
 		//mixin(trace("m_square.x m_square.y m_square.w m_square.h".split));
-		SDL_RenderCopy(gRenderer, stampArea, null, &m_square);
+		SDL_RenderCopy(gWin.sdlRender, stampArea, null, &m_square);
 
 		//SDL_Rect r = {25,50, 32,32};
 		//SDL_RenderCopy(gRenderer, getTextureLetter('J'), null, &r);
 	}
 }
-} // version new0

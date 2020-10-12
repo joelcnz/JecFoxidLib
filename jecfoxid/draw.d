@@ -21,83 +21,6 @@ struct JRectangle {
 }
 
 /+
-struct JRectangle {
-    //SDL_Rect mRect;
-    Vec pos, size;
-    //alias mRect this; // x y w h (void main() { JRectangle r; r.x = 10; r.y = 20; r.w = 32; r.h = 32; r.mColour.b = 255; } )
-    //SDL_Color mColour;
-    Color mColour;
-    BoxStyle _boxStyle;
-
-    this(Vec pos, Vec, BoxStyle bs, SDL_Color col) {
-        setup(rect, bs, col);
-    }
-
-    void setup(SDL_Rect rect, BoxStyle style, SDL_Color col) {
-        mRect = rect;
-        _boxStyle = style;
-        mColour = col;
-        /+
-        SDL_Surface* surf = SDL_CreateRGBSurfaceWithFormat(0, mRect.w,mRect.h, 32, SDL_PIXELFORMAT_RGBA32);
-        scope(exit)
-            SDL_FreeSurface(surf);
-//        SDL_Rect rsrc = {1 + (i - 33) * step, 1, width, height - 1};
-//        SDL_BlitSurface(source, &rsrc, surf, null);
-        mRect.x = mRect.y = 0;
-        SDL_SetRenderDrawColor(gRenderer, mColour.r, mColour.g, mColour.b, mColour.a);
-        SDL_RenderFillRect(gRenderer, &mRect);
-        mTex = SDL_CreateTextureFromSurface(gRenderer, surf);
-        +/
-    }
-
-    void position(Vec pos) {
-        //mRect.
-        x = cast(int)pos.x; //Xi;
-        //mRect.
-        y = cast(int)pos.y; //Yi;
-    }
-
-    void size(Vec size) {
-        //mRect.
-        w = cast(int)size.x; //Xi;
-        //mRect.
-        h = cast(int)size.y; //Yi;
-    }
-
-    void draw() {
-        //foreach(dy; 0 .. mRect.h)
-        //    foreach(dx; 0 .. mRect.w)
-        //        SDL_RenderDrawPoint(gRenderer, mRect.x + dx,mRect.y + dy);
-        //SDL_FillRect(gStamp, &mRect,
-        //    SDL_MapRGB(gStamp.format, mColour.r, mColour.g, mColour.b));
-/+
-        SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
-        scope(exit)
-            SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_NONE);
-        SDL_SetRenderDrawColor(gRenderer, mColour.r, mColour.g, mColour.b, mColour.a);
-+/
-        final switch(_boxStyle) with(BoxStyle) {
-            case solid:
-                //SDL_RenderFillRect(gRenderer, &mRect);
-                gGraph.drawRect()
-            break;
-            case outLine:
-//                SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-                //SDL_RenderDrawRect(gRenderer, &mRect);
-            break;
-        }
-        /+
-        if (! SDL_FillRect(mDest,
-                 &mRect,
-                 SDL_MapRGB(
-                     mColour)
-                     )
-         assert(0, "FillRect failure");
-         +/
-    }
-}
-
-/+
 /// Draw a single dot
 void jecDrawDot(ref Image img, Point pos, Color colour) {
     if (pos.X >=0 && pos.X < img.getSize.x &&
@@ -187,5 +110,4 @@ void jecDrawLine(ref Image img, Point pst, Point ped, Color cst, Color ced) {
         }
     }
 }
-+/
 +/
