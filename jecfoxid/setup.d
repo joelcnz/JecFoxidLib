@@ -20,8 +20,10 @@ bool jf_setup(in string title = "Jec Foxid", int windowWidth = 640, int windowHe
 	gGraph = new Display(gWin); // We create and tell the display that we are drawing into this window.
 	assert(jf_initKeys, "keys failure");
 	gFont = new Font();
-	immutable fontFileName = "fonts/DejaVuSans.ttf";
+	immutable fontFileName = "Fonts/DejaVuSans.ttf";
 	gFont.load(fontFileName,gFontSize);
+	assert(gFont, "Font file load");
+
 	guiSetup;
 
 	return true;

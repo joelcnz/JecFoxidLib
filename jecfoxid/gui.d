@@ -64,7 +64,7 @@ public:
     auto focusAble() { return _focusAble; }
 
     /// Ctor name and box (location and size)
-    this(in string nameid0, in JRectangle box0) {
+    this(in string nameid0, JRectangle box0) {
         _wedgetType = WedgetType.wedget;
         _nameid = nameid0;
         _box = box0;
@@ -132,7 +132,7 @@ public:
 /// Edit box wedget
 class EditBox : Wedget {
     /// Ctor name, boc, and label
-    this(in string name, in JRectangle box0, string txt0) {
+    this(in string name, JRectangle box0, string txt0) {
         super(name, box0);
         _wedgetType = WedgetType.edit;
        _input = new InputJex(/* position */ Vec(_box.pos.x + 2, box.pos.y + 2),
@@ -161,7 +161,7 @@ class EditBox : Wedget {
 /// Button wedget
 class Button : Wedget {
     /// Ctor name, box, and text for button
-    this(in string name, in JRectangle box0, string txt0) {
+    this(in string name, JRectangle box0, string txt0) {
         super(name, box0);
         _wedgetType = WedgetType.button;
     }

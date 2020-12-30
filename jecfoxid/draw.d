@@ -1,5 +1,4 @@
 module jecfoxid.draw;
-//#Colour changing not working
 
 import jecfoxid;
 
@@ -11,14 +10,23 @@ struct JRectangle {
     this(SDL_Rect rect, BoxStyle boxStyle, SDL_Color col) {
         this.pos = Vec(rect.x,rect.y);
         this.size = Vec(rect.w,rect.h);
-        this.col = Color(col.r,col.g,col.b,col.a);
         this.boxStyle = boxStyle;
+        this.col = Color(col.r,col.g,col.b,col.a);
+    }
+
+    ~this()  {
     }
 
     void draw(Display graph) {
         graph.drawRect(pos,pos+size,col,boxStyle==BoxStyle.solid);
     }
 }
+
+/+
+struct JSprite {
+
+}
++/
 
 /+
 /// Draw a single dot

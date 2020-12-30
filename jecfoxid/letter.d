@@ -71,16 +71,14 @@ public:
 	/// Selected text getter
 	auto selected() { return m_selected; }
 	
-	//void setPostion( double x, double y ) { xpos = x; ypos = y; } /// postion the letter
-	void setPostion( float x, float y ) {
-		//letterManager(cast(int)x,cast(int)y);
+	void setPosition( float x, float y ) {
 		xpos = x;
 		ypos = y;
 	}
 	
 	/// ctor new letter
 	this(LetterManager letterManager0, char letter, ubyte gfxIndex = 0) {
-		letterManager = letterManager0;
+		m_letterManager = letterManager0;
 		m_gfxIndex = gfxIndex;
 		m_id = m_idCurrent;
 		++m_idCurrent;
@@ -98,20 +96,13 @@ public:
 		bcol = SDL_Color(0,0,255, 255);
 		abcol = 0.0;
 
-		m_selectedGfx = JRectangle(SDL_Rect(0,0, letterManager.width, letterManager.height), BoxStyle.solid,
-			SDL_Color(64,64,255,128));
-
-		debug {
-//			if (letterManager.letters.length > 0)
-//				mixin( traceLine( //"letterManager.bmpLetters[0].width", "letterManager.bmpLetters[0].height",
-//									"letter", "letter & 0xFF", "letterManager.bmpLetters.length" ) );
-			//mixin(traceLine("letterManager.bmpLetters[0]"));
-		}
+		m_selectedGfx = JRectangle(SDL_Rect(0,0, letterManager.charW, letterManager.charH),
+			BoxStyle.solid,	SDL_Color(64,64,255,128));
 	}
 	
 	/// dtor for any Allegro C created stuff
 	~this() {
-		//clear( bmp ); //#need this, or crashes
+		//mixin(tce("/* ~this */ m_letter"));
 	}
 	
 	/**
@@ -139,8 +130,6 @@ public:
 				 m_yoff -= m_ydir;
 		}
 		m_yoff = 0; //#to stop bouncing
-		version(Windows)
-			m_colour = SDL_Color(m_shade, m_shade, m_shade, 255); //makecol( m_shade, m_shade, m_shade );
 		m_shade += 5;
 		
 		abcol += 256 / 100 * 3;
@@ -158,49 +147,21 @@ public:
 	 * 
 	 * 2. Changing colour
 	 */
-	void draw() {
-		//mixin(traceList("xpos ypos letter&0xFF letterManager.width letterManager.height letterManager.square.w letterManager.square.h".split))
+	void draw(Display graph) @safe {
 		if ((letter & 0xFF) >= 32
-		  && xpos + letterManager.width >= 0
-		  && xpos <= letterManager.square.w - letterManager.width
-		  && ypos + letterManager.height >= 0
-		  && ypos <= letterManager.square.h + letterManager.height) {
+		  && xpos + letterManager.charW >= 0
+		  && xpos <= letterManager.stampArea.width - letterManager.charW
+		  && ypos + letterManager.charH >= 0
+		  && ypos <= letterManager.stampArea.height + letterManager.charH) {
 			if ( ! alternate ) {
 				m_letterManager.chooseTextGfx(gfxIndex);
-				//SDL_Rect(cast(int)xpos, cast(int)ypos, letterManager.width,letterManager.height);
-				m_selectedGfx.pos = Vec(xpos,ypos);
-				m_selectedGfx.size = Vec(letterManager.width,letterManager.height);
-				//stamp.draw(m_letterManager.bmpLetters[letter]);
+				SDL_Rect rpos = {cast(int)xpos, cast(int)ypos, letterManager.stampArea.width, letterManager.stampArea.height};
 
-				// Set the render target texture as the current render target
-				/*
-				Note: everything from now on will be rendered to the render target texture,
-				until the render target are reset back to the default render target
-				*/
-
-				//SDL_Rect rspos = {0,0, letterManager.width, letterManager.height};
-				SDL_Rect rpos = {cast(int)xpos, cast(int)ypos, letterManager.width, letterManager.height};
-
-				import std.string : split;
-				//mixin(trace("/*rpos*/rpos.x rpos.y rpos.w rpos.h".split));
-				//mixin(trace("/*m_selectedGfx*/m_selectedGfx.x m_selectedGfx.y m_selectedGfx.w m_selectedGfx.h".split));
-				// Clear the render target texture to black
 				if (m_selected) {
-					//setup(rpos, BoxStyle.solid, SDL_Color(0,0,255, 128));
-					m_selectedGfx = JRectangle(rpos,BoxStyle.solid,SDL_Color(0,0,255, 128));
-					//m_selectedGfx.draw; //(gGraph);
-					SDL_RenderFillRect(gWin.sdlRender, &rpos);
-
-					SDL_SetTextureBlendMode( letterManager.getTextureLetter(letter), SDL_BLENDMODE_BLEND );
-					SDL_SetTextureAlphaMod( letterManager.getTextureLetter(letter), 128 );
+					graph.drawRect(Vec(xpos,ypos),Vec(xpos+letterManager.charW,ypos+letterManager.charH),Color(0,0,255,128), /* fill */ true);
 				}
 
-				SDL_RenderCopy(gWin.sdlRender, letterManager.getTextureLetter(letter), null, &rpos);
-				SDL_SetTextureBlendMode( letterManager.getTextureLetter(letter), SDL_BLENDMODE_NONE );
-				//SDL_RenderCopy(gRenderer, letterManager.bmpLetters[letter], null, &rpos);
-				//SDL_RenderCopy(gRenderer, letterManager.getTextureLetter(letter), null, &m_selectedGfx.mRect);
-
-				//////////////////////////////////////////////////////////////////////////
+				graph.draw(letterManager.getTextureLetter(letter), Vec(xpos,ypos));
 			 }
 			else {
 			}

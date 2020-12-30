@@ -1,3 +1,4 @@
+//#not being used
 //#not used
 //#here
 //#new, untested
@@ -34,7 +35,7 @@ private:
 	Color _colour;
 	float _historyLineHeight;
 	Vec _vect,
-			 _mousePos;
+			 _mousePos; //#not being used
 	//CircleShape _ss; //#not used
 	bool _enterPressed;
 	
@@ -100,7 +101,7 @@ public:
 		void enterPressed(bool ep) { _enterPressed = ep; }
 	
 		auto textStr() { return _str; }
-		void textStr(string str) { _str = str; _txt.text = _str.to!string; }
+		void textStr(string str) { _str = str; _txt.text = _str; }
 		
 		void clearHistory() { _history.length = 0; }
 
@@ -457,7 +458,8 @@ public:
 			//_history[$ - 1].setColor = _colour;
 
 			_history ~= JText(str,gFont);
-			_history[$-1].position.y = _txt.position.y - _txt.fontSize;
+			//_history[$-1].position.y = _txt.position.y - _txt.fontSize;
+			_history[$-1].position = Vec(_header.position.x, _txt.position.y - _txt.fontSize);
 			
 			_inputHistoryPos = cast(int)_inputHistory.length - 1;
 		} // onlyMirror

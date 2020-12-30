@@ -4,3 +4,5 @@ What is stopping you from making an overlay? The sdl of the event._sdl_handle st
 
 event._sdl_handle
 window._sdl_render ()
+
+I think it's 'sdlHandle' now.

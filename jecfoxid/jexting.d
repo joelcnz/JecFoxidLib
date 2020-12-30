@@ -21,12 +21,15 @@ struct JText {
 	Font font;
 	int fontSize;
 	Color colour = Color(255,255,255);
+	bool hasFont;
 
 	private string fontFileName;
 
 	void setSize(in int fontSize0) {
 		//fontFileName.gh;
-		assert(exists(fontFileName), "File not exist");
+		if (exists("Fonts/"~fontFileName~".ttf"))
+			fontFileName = "Fonts/"~fontFileName~".ttf";
+		assert(exists(fontFileName), fontFileName~" File not exist");
 		if (! font)
 			font = new Font();
 		else {
@@ -46,6 +49,7 @@ struct JText {
 		this.fontSize = font.size;
 		this.fontFileName = font.name;
 		colour = Color(255,180,0);
+		hasFont = false;
 	}
 
 	this(in string text, in string fontFileName, in int fontSize) {
@@ -54,6 +58,15 @@ struct JText {
 		this.fontFileName = fontFileName;
 		setSize(fontSize);
 		colour = Color(255,180,0);
+		hasFont = true;
+	}
+
+	~this() {
+		if (hasFont) {
+			destroy(font);
+			hasFont = false;
+			writeln(fontFileName, " - is closed, '", text, "'");
+		}
 	}
 
 	void draw(Display graph) {
